@@ -1,6 +1,6 @@
-# Multivariate Sensor Anomaly Detection: PCA vs. Neighborhood Embedding (GEM/k-NN)
+# Multivariate Sensor Anomaly Detection: PCA vs. Geometric Entropy Minimization (GEM)
 
-A comparative machine learning framework designed to detect operational anomalies in multi-channel telemetry and industrial sensor networks. This repository implements and evaluates two complementary unsupervised paradigms: **Principal Component Analysis (PCA)** for linear subspace reconstruction and **Graph/Neighborhood Embeddings (GEM via k-NN)** for local density estimation.
+A comparative machine learning framework designed to detect operational anomalies in multi-channel telemetry and industrial sensor networks. This repository implements and evaluates two complementary unsupervised paradigms: **Principal Component Analysis (PCA)** for linear subspace reconstruction and **Geometric Entropy Minimization (GEM via k-NN)** for non-parametric minimum-volume set anomaly detection.
 
 ---
 
@@ -13,8 +13,8 @@ This project explores unsupervised anomaly detection on an automated system moni
 - **Data Topology:** 10 synchronized sensor streams tracking operational parameters.
 - **Challenge:** Identifying transient faults, sensor degradation, and systemic out-of-nominal behavior without supervised labels.
 - **Approaches:**
-  1. **PCA (Global/Linear):** Identifies anomalies when the linear relationship between sensor dimensions breaks down.
-  2. **k-NN/GEM (Local/Non-Linear):** Detects states that depart from typical operational clusters in the metric manifold.
+  1. **PCA (Global/Linear):** Identifies anomalies when the linear cross-correlation structure between sensor dimensions breaks down.
+  2. **GEM (Non-Parametric/Geometric):** Uses Geometric Entropy Minimization via $k$-nearest neighbors to estimate a minimal-volume acceptance region for nominal states, flagging points falling outside as anomalies.
 
 ---
 
@@ -24,13 +24,13 @@ This project explores unsupervised anomaly detection on an automated system moni
 - **Dimensionality Reduction:** Computes the covariance matrix across sensor channels to extract dominant eigenvectors[cite: 1].
 - **Metric:** **Squared Prediction Error (SPE / Reconstruction Error):**
   > **`SPE(x) = ||x - x̂||² = ||x - P Pᵀ x||²`**
-- Samples exhibiting a high reconstruction error indicate a violation of standard multi-sensor correlations.
+- Samples exhibiting a high reconstruction error indicate a violation of normal multi-sensor correlations.
 
-### 2. Graph / Neighborhood Embedding (GEM / k-NN)
-- **Manifold Representation:** Maps sensor configurations to a metric vector space and constructs a k-nearest neighbor graph[cite: 2].
-- **Metric:** **Mean Distance to k-Nearest Neighbors:**
+### 2. Geometric Entropy Minimization (GEM via k-NN)
+- **Theory:** Non-parametric method estimating a minimum-volume (low-entropy) acceptance region of normal data using $k$-nearest neighbor graph structures.
+- **Metric:** **$k$-NN Distance / Empirical Entropy Score:**
   > **`Score(x) = (1 / k) * Σ ||x - x(i)||`**
-- Samples with high distance scores reside in sparse regions of the operational manifold, signaling novel or faulty states.
+- Points residing outside the dense normal operational region yield large neighbor distances and accumulate higher anomaly scores over a sliding window.
 
 ---
 
@@ -39,9 +39,9 @@ This project explores unsupervised anomaly detection on an automated system moni
 ```text
 ├── data.csv                 # Raw multi-channel sensor telemetry
 ├── PCA.ipynb                # PCA pipeline, reconstruction error, and residual scoring
-├── GEM.ipynb                # k-NN / GEM neighborhood distance anomaly detector
+├── GEM.ipynb                # GEM-based k-NN sliding-window anomaly detector
 ├── anomaly_plots_PCA/       # Reconstruction error and anomaly threshold plots (PCA)
-├── anomaly_plots_GEM/       # k-NN distance scores and detection visualizations (GEM)
+├── anomaly_plots_GEM/       # GEM distance scores and detection visualizations
 ├── anomaly_results_PCA/     # Exported evaluation metrics, predictions, and logs (PCA)
 ├── anomaly_results_GEM/     # Exported evaluation metrics, predictions, and logs (GEM)
 └── README.md                # Project documentation and analysis
