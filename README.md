@@ -1,47 +1,8 @@
-# Multivariate Sensor Anomaly Detection: PCA vs. Geometric Entropy Minimization (GEM)
-
-A comparative machine learning framework designed to detect operational anomalies in multi-channel telemetry and industrial sensor networks. This repository implements and evaluates two complementary unsupervised paradigms: **Principal Component Analysis (PCA)** for linear subspace reconstruction and **Geometric Entropy Minimization (GEM via k-NN)** for non-parametric minimum-volume set anomaly detection.
-
----
-
-## 📌 Problem Overview
-
-Industrial control systems, satellite telemetry, and aerospace sensors generate high-frequency multivariate time-series data. In many operating regimes, labeled anomalous data is scarce or nonexistent.
-
-This project explores unsupervised anomaly detection on an automated system monitored by **10 distinct sensor channels** across time:
-
-- **Data Topology:** 10 synchronized sensor streams tracking operational parameters.
-- **Challenge:** Identifying transient faults, sensor degradation, and systemic out-of-nominal behavior without supervised labels.
-- **Approaches:**
-  1. **PCA (Global/Linear):** Identifies anomalies when the linear cross-correlation structure between sensor dimensions breaks down.
-  2. **GEM (Non-Parametric/Geometric):** Uses Geometric Entropy Minimization via $k$-nearest neighbors to estimate a minimal-volume acceptance region for nominal states, flagging points falling outside as anomalies.
-
----
-
-## ⚙️ Algorithms & Methodology
-
-### 1. Principal Component Analysis (PCA)
-- **Dimensionality Reduction:** Computes the covariance matrix across sensor channels to extract dominant eigenvectors[cite: 1].
-- **Metric:** **Squared Prediction Error (SPE / Reconstruction Error):**
-  > **`SPE(x) = ||x - x̂||² = ||x - P Pᵀ x||²`**
-- Samples exhibiting a high reconstruction error indicate a violation of normal multi-sensor correlations.
-
-### 2. Geometric Entropy Minimization (GEM via k-NN)
-- **Theory:** Non-parametric method estimating a minimum-volume (low-entropy) acceptance region of normal data using $k$-nearest neighbor graph structures.
-- **Metric:** **$k$-NN Distance / Empirical Entropy Score:**
-  > **`Score(x) = (1 / k) * Σ ||x - x(i)||`**
-- Points residing outside the dense normal operational region yield large neighbor distances and accumulate higher anomaly scores over a sliding window.
-
----
-
-## 📁 Repository Structure
-
-```text
-├── data.csv                 # Raw multi-channel sensor telemetry
-├── PCA.ipynb                # PCA pipeline, reconstruction error, and residual scoring
-├── GEM.ipynb                # GEM-based k-NN sliding-window anomaly detector
-├── anomaly_plots_PCA/       # Reconstruction error and anomaly threshold plots (PCA)
-├── anomaly_plots_GEM/       # GEM distance scores and detection visualizations
+Multivariate Sensor Anomaly Detection: PCA vs. Geometric Entropy Minimization (GEM)A comparative machine learning framework designed to detect operational anomalies in multi-channel telemetry and industrial sensor networks. This repository implements and evaluates two complementary unsupervised paradigms: Principal Component Analysis (PCA) for linear subspace reconstruction and Geometric Entropy Minimization (GEM via $k$-NN) for non-parametric minimum-volume set anomaly detection.📌 Problem OverviewIndustrial control systems, satellite telemetry, and aerospace sensors generate high-frequency multivariate time-series data. In many operating regimes, labeled anomalous data is scarce or nonexistent.This project investigates unsupervised anomaly detection on an automated system monitored by 10 distinct sensor channels over time:Raw Data Topology: Multi-channel sensor telemetry stored in long format (#Time, SensorID, Value) across 10 synchronized channels (SensorID $0$ through $9$).Feature Representation: Telemetry is reshaped via pivoting into a multivariate matrix $X \in \mathbb{R}^{T \times 10}$, mapping timestamps $T$ to 10-dimensional operational feature vectors $x_t \in \mathbb{R}^{10}$.Objective: Identify transient faults, sensor degradation, and systemic out-of-nominal behavior without supervised training labels.Approaches:PCA (Global/Linear Subspace): Flags anomalies when the linear cross-correlation structure between sensor dimensions breaks down.GEM (Non-Parametric/Geometric): Uses an empirical $k$-nearest neighbors graph metric to estimate local geometric entropy density, identifying points residing outside the minimal-volume nominal manifold.⚙️ Algorithms & Methodology1. Principal Component Analysis (PCA)Dimensionality Reduction: Computes the sample covariance matrix across the 10 sensor channels to extract dominant projection eigenvectors.Subspace Decomposition: Projects each observation vector $x$ onto the principal subspace $P \in \mathbb{R}^{10 \times l}$ and reconstructs it back to feature space:$$\hat{x} = P P^T x$$Anomaly Metric: Squared Prediction Error ($\text{SPE}$ / $Q$-residual statistic):$$\text{SPE}(x) = \Vert{}x - \hat{x}\Vert{}_2^2 = \Vert{}x - P P^T x\Vert{}_2^2$$Interpretation: Samples exhibiting a high reconstruction error indicate a departure from nominal cross-channel correlation dynamics.2. Geometric Entropy Minimization (GEM via $k$-NN)Theoretical Basis: Non-parametric approach estimating the minimum-volume acceptance region of nominal data using $k$-nearest neighbor graph structures to approximate Rényi entropy.Empirical Metric: Mean $k$-NN Euclidean distance score:$$\text{Score}(x) = \frac{1}{k} \sum_{i=1}^{k} \Vert{}x - x^{(i)}\Vert{}_2$$where $x^{(i)}$ denotes the $i$-th nearest neighbor of $x$ in feature space.Interpretation: Observations located outside dense operational clusters incur higher neighbor distances, translating to elevated anomaly scores across rolling operational windows.📁 Repository StructurePlaintext├── data.csv                 # Raw multi-channel sensor telemetry (#Time, SensorID, Value)
+├── PCA_2.ipynb              # PCA data pipeline, subspace reconstruction, and residual scoring
+├── GEM_2.ipynb              # GEM-based k-NN distance scoring and anomaly detector
+├── anomaly_plots_PCA/       # Reconstruction error and threshold visualizations (PCA)
+├── anomaly_plots_GEM/       # Distance scores and detection visualizations (GEM)
 ├── anomaly_results_PCA/     # Exported evaluation metrics, predictions, and logs (PCA)
 ├── anomaly_results_GEM/     # Exported evaluation metrics, predictions, and logs (GEM)
-└── README.md                # Project documentation and analysis
+└── README.md                # Project documentation and methodology
